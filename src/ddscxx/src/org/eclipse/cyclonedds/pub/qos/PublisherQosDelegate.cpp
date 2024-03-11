@@ -32,7 +32,7 @@ namespace qos
 
 PublisherQosDelegate::PublisherQosDelegate()
 {
-    ddsc_qos(&ddsi_default_qos_publisher_subscriber);
+    ddsc_qos(&ddsi_default_qos_publisher_subscriber, true);
     check();
 }
 
@@ -87,10 +87,11 @@ PublisherQosDelegate::ddsc_qos() const
 }
 
 void
-PublisherQosDelegate::ddsc_qos(const dds_qos_t* qos)
+PublisherQosDelegate::ddsc_qos(const dds_qos_t* qos, bool copy_present)
 {
     assert(qos);
-    present_ = qos->present;
+    if (copy_present)
+        present_ = qos->present;
     if (present_ & DDSI_QP_PRESENTATION)
         presentation_   .delegate().set_iso_policy(qos);
     if (present_ & DDSI_QP_PARTITION)
@@ -127,7 +128,7 @@ PublisherQosDelegate::check() const
 bool
 PublisherQosDelegate::operator ==(const PublisherQosDelegate& other) const
 {
-    return other.present_        == present_ &&
+    return other.present_        == present_      &&
            other.presentation_   == presentation_ &&
            other.partition_      == partition_    &&
            other.gdata_          == gdata_        &&

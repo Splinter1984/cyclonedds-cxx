@@ -32,7 +32,7 @@ namespace qos
 
 TopicQosDelegate::TopicQosDelegate()
 {
-    ddsc_qos(&ddsi_default_qos_topic);
+    ddsc_qos(&ddsi_default_qos_topic, true);
     present() &= ~DDSI_QP_DATA_REPRESENTATION;
     check();
 }
@@ -206,10 +206,11 @@ TopicQosDelegate::ddsc_qos() const
 }
 
 void
-TopicQosDelegate::ddsc_qos(const dds_qos_t* qos)
+TopicQosDelegate::ddsc_qos(const dds_qos_t* qos, bool copy_present)
 {
     assert(qos);
-    present_ = qos->present;
+    if (copy_present)
+        present_ = qos->present;
     if (present_ & DDSI_QP_TOPIC_DATA)
         topic_data_  .delegate().set_iso_policy(qos);
     if (present_ & DDSI_QP_DURABILITY)
@@ -288,7 +289,7 @@ TopicQosDelegate::check() const
 bool
 TopicQosDelegate::operator ==(const TopicQosDelegate& other) const
 {
-    return other.present_     == present_ &&
+    return other.present_     == present_     &&
            other.topic_data_  == topic_data_  &&
            other.durability_  == durability_  &&
 #ifdef  OMG_DDS_PERSISTENCE_SUPPORT
