@@ -32,7 +32,7 @@ namespace qos
 
 DataWriterQosDelegate::DataWriterQosDelegate()
 {
-    ddsc_qos(&ddsi_default_qos_writer);
+    ddsc_qos(&ddsi_default_qos_writer, true);
     present() &= ~DDSI_QP_DATA_REPRESENTATION;
     check();
 }
@@ -256,10 +256,11 @@ DataWriterQosDelegate::ddsc_qos() const
 }
 
 void
-DataWriterQosDelegate::ddsc_qos(const dds_qos_t* qos)
+DataWriterQosDelegate::ddsc_qos(const dds_qos_t* qos, bool copy_present)
 {
     assert(qos);
-    present_ = qos->present;
+    if (copy_present)
+        present_ = qos->present;
     if (present_ & DDSI_QP_USER_DATA)
         user_data_   .delegate().set_iso_policy(qos);
     if (present_ & DDSI_QP_DURABILITY)
@@ -373,13 +374,13 @@ DataWriterQosDelegate::operator ==(const DataWriterQosDelegate& other) const
 #ifdef  OMG_DDS_OWNERSHIP_SUPPORT
            other.strength_    == strength_    &&
 #endif
-           other.lifecycle_   == lifecycle_
+           other.lifecycle_   == lifecycle_   &&
 #ifdef OMG_DDS_EXTENSIBLE_AND_DYNAMIC_TOPIC_TYPE_SUPPORT
-        && other.datarepresentation_ == datarepresentation_
-        && other.typeconsistencyenforcement_ == typeconsistencyenforcement_
+           other.datarepresentation_ == datarepresentation_ &&
+           other.typeconsistencyenforcement_ == typeconsistencyenforcement_ &&
 #endif //  OMG_DDS_EXTENSIBLE_AND_DYNAMIC_TOPIC_TYPE_SUPPORT
-        && other.writerbatching_ == writerbatching_
-        && other.psmxinstances_ == psmxinstances_
+           other.writerbatching_ == writerbatching_ &&
+           other.psmxinstances_ == psmxinstances_
            ;
 }
 

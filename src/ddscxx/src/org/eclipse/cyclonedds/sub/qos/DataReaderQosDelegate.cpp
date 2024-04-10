@@ -32,7 +32,7 @@ namespace qos
 
 DataReaderQosDelegate::DataReaderQosDelegate()
 {
-    ddsc_qos(&ddsi_default_qos_reader);
+    ddsc_qos(&ddsi_default_qos_reader, true);
     present() &= ~DDSI_QP_DATA_REPRESENTATION;
     check();
 }
@@ -208,10 +208,11 @@ DataReaderQosDelegate::ddsc_qos() const
 }
 
 void
-DataReaderQosDelegate::ddsc_qos(const dds_qos_t* qos)
+DataReaderQosDelegate::ddsc_qos(const dds_qos_t* qos, bool copy_present)
 {
     assert(qos);
-    present_ = qos->present;
+    if (copy_present)
+        present_ = qos->present;
     if (present_ & DDSI_QP_DEADLINE)
         deadline_    .delegate().set_iso_policy(qos);
     if (present_ & DDSI_QP_DURABILITY)
@@ -300,12 +301,12 @@ DataReaderQosDelegate::operator==(const DataReaderQosDelegate& other) const
            other.resources_   == resources_   &&
            other.ownership_   == ownership_   &&
            other.tfilter_     == tfilter_     &&
-           other.lifecycle_   == lifecycle_
+           other.lifecycle_   == lifecycle_   &&
 #ifdef OMG_DDS_EXTENSIBLE_AND_DYNAMIC_TOPIC_TYPE_SUPPORT
-        && other.datarepresentation_ == datarepresentation_
-        && other.typeconsistencyenforcement_ == typeconsistencyenforcement_
+           other.datarepresentation_ == datarepresentation_ &&
+           other.typeconsistencyenforcement_ == typeconsistencyenforcement_ &&
 #endif //  OMG_DDS_EXTENSIBLE_AND_DYNAMIC_TOPIC_TYPE_SUPPORT
-        && other.psmxinstances_ == psmxinstances_
+           other.psmxinstances_ == psmxinstances_
            ;
 }
 
