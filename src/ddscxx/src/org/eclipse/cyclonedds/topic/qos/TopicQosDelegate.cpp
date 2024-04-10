@@ -33,7 +33,6 @@ namespace qos
 TopicQosDelegate::TopicQosDelegate()
 {
     ddsc_qos(&ddsi_default_qos_topic, true);
-    present() &= ~DDSI_QP_DATA_REPRESENTATION;
     check();
 }
 
@@ -289,6 +288,28 @@ TopicQosDelegate::check() const
 bool
 TopicQosDelegate::operator ==(const TopicQosDelegate& other) const
 {
+    printf("left: %lu right: %lu", other.present_, present_);
+    printf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+           static_cast<int>(other.topic_data_  == topic_data_)  , 
+           static_cast<int>(other.durability_  == durability_)  ,
+#ifdef  OMG_DDS_PERSISTENCE_SUPPORT
+           static_cast<int>(other.durability_service_ == durability_service_) , 
+#endif  // OMG_DDS_PERSISTENCE_SUPPORT
+           static_cast<int>(other.deadline_    == deadline_)    , 
+           static_cast<int>(other.budget_      == budget_)      , 
+           static_cast<int>(other.liveliness_  == liveliness_)  , 
+           static_cast<int>(other.reliability_ == reliability_) , 
+           static_cast<int>(other.order_       == order_)       , 
+           static_cast<int>(other.history_     == history_)     , 
+           static_cast<int>(other.resources_   == resources_)   , 
+           static_cast<int>(other.priority_    == priority_)    , 
+           static_cast<int>(other.lifespan_    == lifespan_)    , 
+           static_cast<int>(other.ownership_   == ownership_)
+#ifdef OMG_DDS_EXTENSIBLE_AND_DYNAMIC_TOPIC_TYPE_SUPPORT
+        , static_cast<int>(other.datarepresentation_ == datarepresentation_)
+        , static_cast<int>(other.typeconsistencyenforcement_ == typeconsistencyenforcement_)
+#endif //  OMG_DDS_EXTENSIBLE_AND_DYNAMIC_TOPIC_TYPE_SUPPORT
+);
     return other.present_     == present_     &&
            other.topic_data_  == topic_data_  &&
            other.durability_  == durability_  &&

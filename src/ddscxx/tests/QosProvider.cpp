@@ -11,11 +11,14 @@
 #include <gtest/gtest.h>
 
 #include "dds/dds.hpp"
-#include "dds/dds.h"
 #include "dds/ddsc/dds_public_qos_provider.h"
 #include "dds/ddsrt/string.h"
-#include "dds__sysdef_model.h"
 #include "dds/ddsrt/io.h"
+
+#define QOS_LENGTH_UNLIMITED       "LENGTH_UNLIMITED"
+#define QOS_DURATION_INFINITY      "DURATION_INFINITY"
+#define QOS_DURATION_INFINITY_SEC  "DURATION_INFINITE_SEC"
+#define QOS_DURATION_INFINITY_NSEC "DURATION_INFINITE_NSEC"
 
 #define DEF(libs) \
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dds>" libs "\n</dds>"
@@ -823,7 +826,11 @@ public:
                 << dds::core::policy::DestinationOrder::SourceTimestamp()
                 << dds::core::policy::History::KeepLast(1)
                 << dds::core::policy::ResourceLimits(1, 1, 1)
+#ifdef OMG_DDS_PERSISTENCE_SUPPORT
                 << dds::core::policy::DurabilityService(dds::core::Duration(1, 0), dds::core::policy::HistoryKind::KEEP_ALL, -1, 1, 1, 1);
+#else
+                ;
+#endif
             qos = tQos.delegate().ddsc_qos();
             break;
         case DDS_READER_QOS:
@@ -863,6 +870,7 @@ public:
             break;
         }
         result = get_single_configuration(qos, &dur_conf, kind, &full_configuration, &validate_mask);
+        printf("%s\n", full_configuration);
         ASSERT_TRUE(result >= 0);
         dds::core::QosProvider qp(full_configuration);
         switch(kind)
